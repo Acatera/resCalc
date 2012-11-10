@@ -23,7 +23,8 @@ namespace resourceCalculator
 
         private void Form1_Shown(object sender, EventArgs e)
         {
-            foreach (Recipe recipe in Defaults.recipes)
+            Defaults.currentRecipeSet = Defaults.recipesIndustrialCraft;
+            foreach (Recipe recipe in Defaults.recipesIndustrialCraft)
             {
                 items.Items.Add(recipe.name);
             }
@@ -33,7 +34,7 @@ namespace resourceCalculator
         private void doCalculateReqs()
         {
             title.Text = items.Text;
-            Recipe recipe = Defaults.recipes.Find(
+            Recipe recipe = Defaults.currentRecipeSet.Find(
                 delegate(Recipe rcp)
                 {
                     return rcp.name == items.Text;
@@ -42,7 +43,7 @@ namespace resourceCalculator
             if (recipe != null)
             {
                 required.Items.Clear();
-                foreach (Part part in recipe.getConsolidatedRequiredMaterials((double)ammount.Value))
+                foreach (Part part in recipe.getConsolidatedRequiredMaterials((double)ammount.Value, trackBar1.Value))
                 {
                     required.Items.Add(String.Format("{0} {1} ({2} stacks)", part.name, part.ammount, Math.Ceiling(part.ammount / 64 * 1000)/1000));
                 }
@@ -63,6 +64,33 @@ namespace resourceCalculator
         {
             String[] copy = required.Items.OfType<String>().Select(x => "[ ] " + x.ToString()).ToArray();
             Clipboard.SetText(String.Join(Environment.NewLine, copy));
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            doCalculateReqs();
+        }
+
+        private void btnIndustrialCraft_Click(object sender, EventArgs e)
+        {
+            Defaults.currentRecipeSet = Defaults.recipesIndustrialCraft;
+            items.Items.Clear();
+            foreach (Recipe recipe in Defaults.recipesIndustrialCraft)
+            {
+                items.Items.Add(recipe.name);
+            }
+            items.SelectedIndex = 0;
+        }
+
+        private void btnRailCraft_Click(object sender, EventArgs e)
+        {
+            Defaults.currentRecipeSet = Defaults.recipesRailCraft;
+            items.Items.Clear();
+            foreach (Recipe recipe in Defaults.recipesRailCraft)
+            {
+                items.Items.Add(recipe.name);
+            }
+            items.SelectedIndex = 0;
         }
     }
 }
